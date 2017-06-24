@@ -8,9 +8,11 @@ var Message = require('azure-iot-device').Message;
 var Client = require('azure-iot-device').Client;
 var Protocol = require('azure-iot-device-mqtt').Mqtt;
 var connString = '';
+var deviceId = 'not yet selected';
 
 var utils = require('../lib/utils');
 var interval = 10000;
+var lsm = 'no telemetry since last start';
 
 // auxiliary functions
 function printResultFor(op) {
@@ -21,24 +23,24 @@ function printResultFor(op) {
 }
 
 router.get('/', function (req, res, next) {
-  res.render('index', { title: 'ERIX DEVICE SIMULATOR' });
+  res.render('index', { title: 'ERIX DEVICE SIMULATOR', deviceId: deviceId });
 });
 
 router.post('/', function (req, res, next) {
   connString = req.body.cs;
-  res.render('config', { title: 'ERIX DEVICE SIMULATOR' });
+  deviceId = connString.split(';')[1].substring(9);
+  console.log(deviceId);
+  res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
 });
 
 router.get('/telemetry', function (req, res, next) {
-  res.render('device', { title: 'ERIX DEVICE SIMULATOR' });
+  res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
 });
 
 router.post('/telemetry', function (req, res, next) {
   switch (req.body.action) {
     case 'start':
-
       var client = clientFromConnectionString(connString);
-
       client.open(function (err) {
         if (err) {
           msg = 'Could not connect: ' + err;
@@ -47,34 +49,37 @@ router.post('/telemetry', function (req, res, next) {
           console.log('sending messages at : ' + interval + ' miliseconds interval');
           myTimer = setInterval(function () {
             var data = JSON.stringify(utils.composeMessage());
+            lsm = new Date(Date.now()).toUTCString() 
             var message = new Message(data);
             client.sendEvent(message, printResultFor('send'));
-            console.log('tick: ' + Date.now())
-
           }, interval);
         }
       })
-      res.render('device', { title: 'ERIX DEVICE SIMULATOR' });
+      res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
       break;
     case 'stop':
       clearInterval(myTimer);
-      res.render('device', { title: 'ERIX DEVICE SIMULATOR' });
+      res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
       break;
     case 'fault':
       res.send('not implemented');
-      break;      
+      break;  
+    case 'refresh':
+      res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
+      break;        
   }
 
 })
 
 router.get('/config', function (req, res, next) {
-  res.render('config', { title: 'ERIX DEVICE SIMULATOR' });
+  res.render('config', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
 });
 
 router.post('/config', function (req, res, next) {
   interval = req.body.imterval;
 
-  res.render('device', { title: 'ERIX DEVICE SIMULATOR' });
+  res.render('device', { title: 'ERIX DEVICE SIMULATOR', lsm: lsm, deviceId: deviceId });
 });
+
 
 module.exports = router;

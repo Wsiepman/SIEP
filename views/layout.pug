@@ -25,24 +25,24 @@ html(lang='en')
             span.icon-bar
             span.icon-bar
         a.navbar-brand(href="#") 
-            <img src="img/brand.png" width="22" height="22" alt="brand">
+            <img src="img/brand.png" width="22" height="22" alt="brand">                   
 
       #navbar-inverse.collapse.navbar-collapse
-        ul.nav.navbar-nav   
-          li 
+        ul.nav.navbar-nav
+          li.active
             a( href="/") SELECT DEVICE
           li 
-            a( href="/config") CONFIG
+            a( href="/telemetry") TELEMETRY     
           li 
-            a( href="/telemetry") TELEMETRY            
-         
+            a( href="/config") CONFIG
 
-
-  
-
+        ul.nav.navbar-nav.navbar-right
+          li.ph device id
+          form.navbar-form.navbar-left(action='/device', method='post', id='forma')
+            .form-group
+              input.form-control(type='text', name='devID', placeholder=deviceId, readonly="readonly")
 
     block content
-    .bluefooter
-      p.pf  #{footer}
+
 
 
