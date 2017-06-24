@@ -48,7 +48,7 @@ router.post('/telemetry', function (req, res, next) {
           // Create a message and send it to the IoT Hub at interval
           console.log('sending messages at : ' + interval + ' miliseconds interval');
           myTimer = setInterval(function () {
-            var data = JSON.stringify(utils.composeMessage());
+            var data = JSON.stringify(utils.composeMessage(deviceId));
             lsm = new Date(Date.now()).toUTCString() 
             var message = new Message(data);
             client.sendEvent(message, printResultFor('send'));
